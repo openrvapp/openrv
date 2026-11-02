@@ -41,7 +41,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node --test website/test
+      - run: node --test 'website/test/*.test.mjs'
       - name: The firmware variants file is valid
         run: jq -e 'all(.[]; .id and .name and .chip and .file and .requires.flash_mb)' firmware/builds.json
 

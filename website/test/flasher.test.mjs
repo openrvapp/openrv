@@ -1,4 +1,4 @@
-// Tests for the flasher's firmware and board checks: node --test website/test
+// Tests for the flasher's firmware and board checks: node --test website/test/*.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
