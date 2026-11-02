@@ -94,7 +94,7 @@ Controls: `lock`, an action control with `lock` and `unlock` (just `lock` with L
 
 Settings every lock has: `lock_only` (refuse unlock) and `unlock_pin` (ask for the gateway PIN to unlock; on by default). A driver adds what it needs to talk to the lock, and its `ready()` refuses commands until then.
 
-Drivers: RVLock Trek.
+Drivers: RVLock Trek (experimental: setup needs a Bluetooth capture from a phone; see [devices/rvlock-trek.md](devices/rvlock-trek.md)).
 
 ## Surge protector (`surge_protector`)
 
