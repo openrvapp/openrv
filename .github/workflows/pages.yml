@@ -1,6 +1,6 @@
 # Publishes website/ to GitHub Pages, with every firmware release's full image copied next to it so
 # the web flasher can download releases from its own site. Runs when the site changes, when a
-# firmware release is published, or by hand. Needs Pages set to "GitHub Actions" in the repo settings.
+# firmware release is published (firmware-release.yml starts it), or by hand. Needs Pages set to "GitHub Actions" in the repo settings.
 name: Website
 
 on:
