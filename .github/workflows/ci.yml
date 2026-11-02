@@ -14,7 +14,7 @@ jobs:
     name: Device tests (host)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build and run
         run: |
           cmake -S firmware/test/host -B build/host
@@ -25,7 +25,7 @@ jobs:
     name: Firmware build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: espressif/esp-idf-ci-action@v1
         with:
           esp_idf_version: v6.0.3
@@ -37,7 +37,7 @@ jobs:
     name: Website checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -52,7 +52,7 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 24
