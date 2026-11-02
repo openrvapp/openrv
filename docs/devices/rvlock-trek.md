@@ -1,5 +1,25 @@
 # RVLock Trek — BLE protocol (decoded 2026-10-16)
 
+> **Experimental, advanced setup.** Support for the RVLock Trek is experimental: it has been
+> tested on one lock, and RVLock may change the protocol in a firmware update. Adding the lock
+> needs its password frame, which you can only get from a **Bluetooth capture taken on your
+> phone** (Android's Bluetooth HCI snoop log) while the RVLock app locks or unlocks it, then
+> reading the frame out of the capture. Only try it if you're comfortable with developer options
+> and reading a Bluetooth capture, and always keep a key or keypad code for the door.
+
+## Getting the password frame
+
+1. On an Android phone with the RVLock app, turn on Developer options, then **Enable Bluetooth
+   HCI snoop log**. Turn Bluetooth off and on again.
+2. In the RVLock app, lock and unlock the door once.
+3. Get the log: on most phones, take a bug report (Developer options › Take bug report) and find
+   `btsnoop_hci.log` inside it, or use `adb bugreport`.
+4. Open it in [Wireshark](https://www.wireshark.org/), filter on `btatt`, and find the write to
+   handle `0x0003` just before the lock's `7E 05 01 21 03 00 A8` reply: that write is the password
+   frame (it starts with `7E 08`).
+5. In OpenRV, add the lock and paste that frame, as hex, into its password setting.
+6. Turn the snoop log off again. Keep the frame private: anyone who has it can unlock the lock.
+
 Decoded from an Android `btsnoop_hci.log` capture of the RVLock Keyless app
 locking and unlocking a Trek (Bluetooth built into the handle). The gateway
 treats the lock as a command-only, on-demand device (the same connection model

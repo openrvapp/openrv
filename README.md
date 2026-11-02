@@ -28,7 +28,7 @@ OpenRV brings the Bluetooth gadgets in an RV together in one place. A small ESP3
 | Liquid level sensor | Mopeka Pro Check (propane) |
 | Temperature sensor | Inkbird IBS-TH, IBS-TH2 |
 | Refrigerator | Alpicool-protocol coolers (Alpicool, Renogy, Brass Monkey and others) |
-| Lock | RVLock Trek |
+| Lock | RVLock Trek (experimental; advanced setup with a Bluetooth capture, see [docs/devices/rvlock-trek.md](docs/devices/rvlock-trek.md)) |
 | Solar controller | Go Power PWM (experimental) |
 | Battery monitor | none yet |
 | Surge protector | none yet |
