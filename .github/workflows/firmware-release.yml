@@ -1,0 +1,53 @@
+# Builds the gateway firmware for a tag like firmware-v0.3.0 and publishes it as a GitHub release
+# with the app image and a manifest (version, size, SHA-256) that the app checks after downloading,
+# plus a full flash image (bootloader, partition table and app) for a first install over USB.
+name: Firmware release
+
+on:
+  push:
+    tags: ['firmware-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version from the tag
+        run: echo "VERSION=${GITHUB_REF_NAME#firmware-v}" >> "$GITHUB_ENV"
+
+      - name: Build
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v6.0.3
+          target: esp32s3
+          path: firmware
+          command: idf.py -DPROJECT_VER=${{ env.VERSION }} build && idf.py merge-bin --output openrv-gateway-full.bin
+
+      - name: Images and manifest
+        # size and sha256 describe the app image the phone app installs over the air. builds lists
+        # the full images for the web flasher, one per kind of hardware, with what each needs
+        # (firmware/builds.json).
+        run: |
+          cp firmware/build/openrv-gateway.bin openrv-gateway.bin
+          : > builds.jsonl
+          jq -c '.[]' firmware/builds.json | while read -r build; do
+            file=$(jq -r .file <<<"$build")
+            cp "firmware/build/$file" "$file"
+            jq -c --argjson size "$(stat -c %s "$file")" --arg sha256 "$(sha256sum "$file" | cut -d' ' -f1)" \
+              '. + {size: $size, sha256: $sha256}' <<<"$build" >> builds.jsonl
+          done
+          jq -n --arg version "$VERSION" --argjson size "$(stat -c %s openrv-gateway.bin)" \
+            --arg sha256 "$(sha256sum openrv-gateway.bin | cut -d' ' -f1)" --slurpfile builds builds.jsonl \
+            '{version: $version, size: $size, sha256: $sha256, builds: $builds}' > manifest.json
+          cat manifest.json
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" openrv-gateway.bin manifest.json $(jq -r '.[].file' firmware/builds.json) \
+            --title "Gateway firmware $VERSION" --generate-notes

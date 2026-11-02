@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenRV brand</title>
+    <link rel="icon" href="openrv-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/style.css" />
+    <style>
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+      }
+      .swatch {
+        border-radius: 12px;
+        padding: 14px;
+        font: 600 14px/1.4 system-ui, sans-serif;
+        border: 1px solid var(--border);
+      }
+      .tile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        padding: 28px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+      }
+      .tile.light {
+        background: #f4fbfa;
+      }
+      .tile.dark {
+        background: #0e1514;
+      }
+      .assets {
+        display: grid;
+        gap: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="wrap">
+        <h1>OpenRV brand</h1>
+        <p class="section-intro">
+          The mark is a travel trailer on its tongue, sending a signal from the front. The wordmark is drawn in
+          monoline strokes to match, with "Open" light and "RV" bold. All files are SVG and need no fonts.
+        </p>
+
+        <div class="assets">
+          <div class="tile light">
+            <img src="openrv-logo.svg" alt="OpenRV logo" height="64" />
+            <img src="openrv-wordmark.svg" alt="OpenRV wordmark" height="40" />
+          </div>
+          <div class="tile dark">
+            <img src="openrv-logo-dark.svg" alt="OpenRV logo for dark backgrounds" height="64" />
+            <img src="openrv-wordmark-dark.svg" alt="OpenRV wordmark for dark backgrounds" height="40" />
+          </div>
+          <div class="tile light">
+            <img src="openrv-mark.svg" alt="OpenRV mark" height="128" />
+            <img src="openrv-mark.svg" alt="" height="48" />
+            <img src="openrv-mark.svg" alt="" height="32" />
+            <img src="openrv-mark.svg" alt="" height="16" />
+            <img src="openrv-glyph.svg" alt="OpenRV glyph" height="96" style="color: #006a6a" />
+          </div>
+        </div>
+
+        <h2 style="margin-top: 32px">Files</h2>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th scope="col">File</th><th scope="col">Use</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>openrv-mark.svg</code></td><td>App icon, favicon, avatar: the mark on its teal tile</td></tr>
+              <tr><td><code>openrv-glyph.svg</code></td><td>The mark in one colour, without the tile: it takes the text colour when placed inline, and is black as an image</td></tr>
+              <tr><td><code>openrv-wordmark.svg</code>, <code>-dark</code></td><td>The name alone, for light or dark backgrounds</td></tr>
+              <tr><td><code>openrv-logo.svg</code>, <code>-dark</code></td><td>Mark and name side by side, for light or dark backgrounds</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 style="margin-top: 32px">Colours</h2>
+        <div class="swatches">
+          <div class="swatch" style="background: #006a6a; color: #fff">Teal<br />#006A6A</div>
+          <div class="swatch" style="background: #9cf1f0; color: #003737">Signal aqua<br />#9CF1F0</div>
+          <div class="swatch" style="background: #80d5d4; color: #003737">Teal on dark<br />#80D5D4</div>
+          <div class="swatch" style="background: #161d1d; color: #dde4e3">Ink<br />#161D1D</div>
+          <div class="swatch" style="background: #f4fbfa; color: #161d1d">Paper<br />#F4FBFA</div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

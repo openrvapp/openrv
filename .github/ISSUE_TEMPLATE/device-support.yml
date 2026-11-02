@@ -1,0 +1,45 @@
+name: Device support request
+description: Ask for a Bluetooth device to be supported
+labels: [device support]
+body:
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      description: Maker, model, and where it's sold
+    validations:
+      required: true
+  - type: dropdown
+    id: class
+    attributes:
+      label: What kind of device is it?
+      options:
+        - Temperature sensor
+        - Liquid level sensor (propane, water, fuel)
+        - Battery monitor
+        - Solar controller
+        - Refrigerator or cooler
+        - Lock
+        - Surge protector or energy management
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: app
+    attributes:
+      label: The maker's app
+      description: Its name, and what it shows or lets you control
+  - type: textarea
+    id: capture
+    attributes:
+      label: Captures
+      description: >
+        An Android Bluetooth HCI snoop log (btsnoop_hci.log) taken while the maker's app reads or controls the
+        device, with what the app showed at the time, makes support far more likely. Links to existing
+        open-source decoders help too; please say their licence.
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Can you help test?
+      options:
+        - label: I have this device and can test a firmware build with it

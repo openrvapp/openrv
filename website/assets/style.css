@@ -1,0 +1,669 @@
+/* OpenRV website. Colours follow the app's teal theme; light and dark follow the system. */
+:root {
+  --primary: #006a6a;
+  --on-primary: #ffffff;
+  --primary-soft: #cdeeed;
+  --bg: #f4fbfa;
+  --surface: #ffffff;
+  --surface-2: #e8f2f1;
+  --text: #161d1d;
+  --muted: #4a5958;
+  --border: #d3dedd;
+  --ok: #1b7a3a;
+  --warn: #8a5a00;
+  --error: #b3261e;
+  --code-bg: #e8f2f1;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.05);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #80d5d4;
+    --on-primary: #003737;
+    --primary-soft: #0d3a3a;
+    --bg: #0e1514;
+    --surface: #161e1d;
+    --surface-2: #1d2726;
+    --text: #dde4e3;
+    --muted: #9fb0ae;
+    --border: #2c3837;
+    --ok: #7fd59a;
+    --warn: #f0c060;
+    --error: #ffb4ab;
+    --code-bg: #1d2726;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+a {
+  color: var(--primary);
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+code,
+pre {
+  font-family: ui-monospace, "Cascadia Code", Consolas, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+}
+
+pre {
+  background: var(--code-bg);
+  padding: 14px 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ---- Header and footer ---- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 60px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  height: 34px;
+  width: auto;
+}
+
+.site-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  color: var(--text);
+}
+
+.site-footer {
+  margin-top: 64px;
+  padding: 32px 0 48px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.site-footer p {
+  margin: 0.4em 0;
+}
+
+/* ---- Sections ---- */
+
+.hero {
+  padding: 72px 0 48px;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.15;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+.hero .lead {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 680px;
+  margin: 0 0 28px;
+}
+
+section {
+  padding: 40px 0;
+}
+
+section > .wrap > h2,
+.page h1 {
+  font-size: 1.7rem;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.section-intro {
+  color: var(--muted);
+  max-width: 720px;
+  margin: 0 0 24px;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--primary);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 50%, transparent);
+  outline-offset: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-soft);
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+
+.icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+th {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 52px;
+}
+
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.steps h3 {
+  margin: 4px 0 4px;
+  font-size: 1.05rem;
+}
+
+.steps p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.diagram {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.diagram .box {
+  fill: var(--surface-2);
+  stroke: var(--border);
+}
+
+.diagram .hub {
+  fill: var(--primary-soft);
+  stroke: var(--primary);
+}
+
+.diagram text {
+  fill: var(--text);
+  font: 600 14px system-ui, sans-serif;
+}
+
+.diagram .small {
+  fill: var(--muted);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.diagram .line {
+  stroke: var(--primary);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 5 5;
+}
+
+.notice {
+  border-left: 4px solid var(--warn);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 16px 0;
+}
+
+.notice.error {
+  border-left-color: var(--error);
+}
+
+.notice.ok {
+  border-left-color: var(--ok);
+}
+
+.notice p {
+  margin: 0.2em 0;
+}
+
+/* ---- Flasher ---- */
+
+.page {
+  padding: 40px 0;
+}
+
+.flasher {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.flasher .card h2 {
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flasher .card h2 .num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+}
+
+.flasher .card > p {
+  margin-top: 0;
+}
+
+.tabs {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  margin: 12px 0;
+  background: var(--surface-2);
+}
+
+.tabs button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.tabs button[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+label {
+  font-weight: 600;
+}
+
+select,
+input[type="text"] {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+input[type="file"] {
+  font: inherit;
+  max-width: 100%;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 12px 0 0;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 32px;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status.ok {
+  color: var(--ok);
+}
+
+.status.warn {
+  color: var(--warn);
+}
+
+.status.error {
+  color: var(--error);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .site-header .wrap {
+    height: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .site-nav {
+    margin-left: 0;
+    gap: 14px;
+  }
+
+  .hero {
+    padding: 40px 0 24px;
+  }
+
+  th,
+  td {
+    padding: 10px 12px;
+  }
+}
+
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-weight: 400;
+  margin: 12px 0;
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+}
+
+/* What the chosen firmware needs, against what the board has. */
+.checks {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 6px;
+}
+
+.checks li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+}
+
+.checks .mark {
+  font-weight: 700;
+  text-align: center;
+}
+
+.checks .pass .mark {
+  color: var(--ok);
+}
+
+.checks .fail .mark {
+  color: var(--error);
+}
+
+.checks .note .mark {
+  color: var(--warn);
+}
+
+progress {
+  width: 100%;
+  height: 14px;
+  accent-color: var(--primary);
+}
+
+.log {
+  background: var(--code-bg);
+  border-radius: 10px;
+  padding: 12px;
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font: 12px/1.5 ui-monospace, Consolas, Menlo, monospace;
+  margin: 0;
+}
+
+.setup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.setup-qr {
+  background: #fff; /* QR codes need a light background, even in dark mode */
+  padding: 8px;
+  border-radius: 10px;
+  line-height: 0;
+}
+
+.setup-qr svg {
+  width: 200px;
+  height: 200px;
+}
+
+.setup-code {
+  font: 600 20px/1.3 ui-monospace, Consolas, Menlo, monospace;
+  letter-spacing: 0.08em;
+}
+
+@media print {
+  .site-header,
+  .site-footer,
+  .section-intro,
+  .flasher > :not(.setup-card),
+  .page > .wrap > :not(.flasher),
+  .no-print {
+    display: none !important;
+  }
+
+  .setup-card {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+}

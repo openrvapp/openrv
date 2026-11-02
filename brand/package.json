@@ -1,0 +1,13 @@
+{
+  "name": "openrv-brand",
+  "private": true,
+  "type": "module",
+  "description": "Builds the OpenRV logos and icons from brand/build.mjs",
+  "license": "MIT",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "sharp": "0.34.5"
+  }
+}

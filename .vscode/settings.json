@@ -1,0 +1,9 @@
+{
+  "typescript.tsdk": "app/node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "[typescript][typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "idf.espIdfPathWin": "C:\esp\v6.0.3\esp-idf",
+  "idf.toolsPathWin": "C:\Espressif\tools",
+  "idf.adapterTargetName": "esp32s3",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/firmware/build/compile_commands.json"
+}

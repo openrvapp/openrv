@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 306 66" role="img" aria-label="OpenRV">
+  <g transform="translate(0 1)"><rect width="64" height="64" rx="15" fill="#006A6A"/>
+  <path d="M7 40V27c0-5 4-8 9-8h17c5 0 9 2 12 6l4 6v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" fill="#FFFFFF"/>
+  <rect x="12" y="24" width="9" height="6" rx="2" fill="#006A6A"/>
+  <rect x="27" y="24" width="6" height="13" rx="2" fill="#006A6A"/>
+  <path d="M47 40h10" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M53 40v6" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="18" cy="43" r="5" fill="#006A6A" stroke="#FFFFFF" stroke-width="3"/>
+  <path d="M46 12a8 8 0 0 1 6 6M46 6a14 14 0 0 1 12 12" fill="none" stroke="#9CF1F0" stroke-width="3" stroke-linecap="round"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(82 0)"><path d="M22 8A19 20 0 0 0 22 48A19 20 0 0 0 22 8z" stroke="#161D1D" stroke-width="5"/><g transform="translate(12 0)"><path d="M39.5 20V62M39.5 34a13 13 0 1 0 26 0a13 13 0 1 0 -26 0 M76 34H102A13 13 0 1 0 98.2 43.2 M111 48V21M111 33A11 11 0 0 1 133 33V48" stroke="#161D1D" stroke-width="5"/><path d="M146 47V10H157A10.5 10.5 0 0 1 157 31H146M157 31L168 47 M178 10L192 47L206 10" stroke="#006A6A" stroke-width="7"/></g></g>
+</svg>

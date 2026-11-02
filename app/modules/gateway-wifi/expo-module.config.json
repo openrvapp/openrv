@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["GatewayWifiModule"]
+  },
+  "android": {
+    "modules": ["app.openrv.gatewaywifi.GatewayWifiModule"]
+  }
+}

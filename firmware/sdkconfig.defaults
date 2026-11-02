@@ -1,0 +1,42 @@
+# The headless gateway runs on any ESP32-S3 board with 4 MB of flash or more. Boards with octal
+# PSRAM (modules marked R8, such as N16R8) use it for larger allocations; without it, or with quad
+# PSRAM, the gateway runs from internal RAM. Bigger flash chips run the same image; the space past
+# 4 MB is simply unused.
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_IGNORE_NOTFOUND=y
+
+# A new image must confirm itself (after BLE is up) or the bootloader rolls back.
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
+# NimBLE: scanner + central links to devices + peripheral for phones.
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLUEDROID_ENABLED=n
+CONFIG_BT_NIMBLE_ENABLED=y
+CONFIG_BT_NIMBLE_ROLE_CENTRAL=y
+CONFIG_BT_NIMBLE_ROLE_PERIPHERAL=y
+CONFIG_BT_NIMBLE_ROLE_OBSERVER=y
+CONFIG_BT_NIMBLE_ROLE_BROADCASTER=y
+# 3 device links + 2 phones.
+CONFIG_BT_NIMBLE_MAX_CONNECTIONS=5
+CONFIG_BT_NIMBLE_ATT_PREFERRED_MTU=517
+# Ordinary heap: PSRAM when the board has it, internal RAM when not.
+CONFIG_BT_NIMBLE_MEM_ALLOC_MODE_DEFAULT=y
+# Phones pair and bond (LE Secure Connections), so their link is encrypted and the gateway
+# knows them again; bonds live in NVS, so a factory reset clears them with everything else.
+CONFIG_BT_NIMBLE_SECURITY_ENABLE=y
+CONFIG_BT_NIMBLE_SM_SC=y
+CONFIG_BT_NIMBLE_SM_LEGACY=n
+CONFIG_BT_NIMBLE_NVS_PERSIST=y
+CONFIG_BT_NIMBLE_MAX_BONDS=8
+CONFIG_BT_NIMBLE_SVC_GAP_DEVICE_NAME="OpenRV"
+CONFIG_BT_NIMBLE_GAP_DEVICE_NAME_MAX_LEN=32
+
+CONFIG_COMPILER_CXX_EXCEPTIONS=n
+CONFIG_COMPILER_OPTIMIZATION_SIZE=y
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y

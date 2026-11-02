@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 66" role="img" aria-label="OpenRV">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 0)"><path d="M22 8A19 20 0 0 0 22 48A19 20 0 0 0 22 8z" stroke="#DDE4E3" stroke-width="5"/><g transform="translate(12 0)"><path d="M39.5 20V62M39.5 34a13 13 0 1 0 26 0a13 13 0 1 0 -26 0 M76 34H102A13 13 0 1 0 98.2 43.2 M111 48V21M111 33A11 11 0 0 1 133 33V48" stroke="#DDE4E3" stroke-width="5"/><path d="M146 47V10H157A10.5 10.5 0 0 1 157 31H146M157 31L168 47 M178 10L192 47L206 10" stroke="#80D5D4" stroke-width="7"/></g></g>
+</svg>

@@ -1,0 +1,10 @@
+# Fits 4 MB of flash: two 1.875 MB app slots for over-the-air updates (the app is about 1 MB).
+# setup holds the code the web flasher writes for claiming the gateway; a factory reset keeps it.
+# nvs keeps its offset and size from earlier layouts, so a gateway's saved devices survive a reflash.
+# Name,   Type, SubType, Offset,   Size
+nvs,      data, nvs,     0x9000,   0x6000
+otadata,  data, ota,     0xf000,   0x2000
+phy_init, data, phy,     0x11000,  0x1000
+setup,    data, 0x40,    0x12000,  0x1000
+ota_0,    app,  ota_0,   0x20000,  0x1E0000
+ota_1,    app,  ota_1,   0x200000, 0x1E0000

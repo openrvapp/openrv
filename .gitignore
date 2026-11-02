@@ -1,0 +1,4 @@
+# Host test builds (firmware/test/host)
+build/
+# Firmware staged for the website by website/dev.mjs or the Pages deploy
+website/firmware/

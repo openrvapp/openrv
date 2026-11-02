@@ -1,0 +1,89 @@
+{
+  "expo": {
+    "name": "OpenRV",
+    "slug": "openrv",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.openrv",
+      "entitlements": {
+        "com.apple.developer.networking.HotspotConfiguration": true
+      },
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "OpenRV sends firmware updates to your gateway over its own Wi-Fi.",
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#006A6A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "app.openrv",
+      "permissions": [
+        "android.permission.CHANGE_NETWORK_STATE",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-secure-store",
+      [
+        "react-native-ble-nitro",
+        {
+          "isBackgroundEnabled": true,
+          "modes": [
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "OpenRV uses Bluetooth to talk to your RV gateway.",
+          "neverForLocation": true
+        }
+      ],
+      "expo-background-task",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#006A6A"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraProguardRules": "# WorkManager (expo-background-task) creates its Room database by reflection.\n-keep class androidx.work.impl.WorkDatabase_Impl { *; }\n-keep class * extends androidx.room.RoomDatabase { *; }\n# Nitro modules (react-native-ble-nitro) are created by name from native code.\n-keep class com.margelo.nitro.** { *; }\n"
+          }
+        }
+      ],
+      "./plugins/withGatewayCleartext"
+    ],
+    "scheme": "openrv",
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "8f6d87c2-4837-4ee1-a3f8-e3bc3625ef69"
+      }
+    },
+    "owner": "real-honest-apps"
+  }
+}

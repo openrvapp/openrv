@@ -1,0 +1,9 @@
+[
+  {
+    "id": "gateway",
+    "name": "Gateway (no screen)",
+    "chip": "ESP32-S3",
+    "file": "openrv-gateway-full.bin",
+    "requires": { "flash_mb": 4 }
+  }
+]

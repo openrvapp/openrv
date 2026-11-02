@@ -1,0 +1,59 @@
+# Publishes website/ to GitHub Pages, with every firmware release's full image copied next to it so
+# the web flasher can download releases from its own site. Runs when the site changes, when a
+# firmware release is published, or by hand. Needs Pages set to "GitHub Actions" in the repo settings.
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths: ['website/**', '.github/workflows/pages.yml']
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # GitHub Pages on a private repository needs a paid plan; until the repo is public, skip.
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy firmware releases into the site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p website/firmware
+          echo '[]' > website/firmware/releases.json
+          gh api "repos/${{ github.repository }}/releases?per_page=30" \
+            --jq '[.[] | select(.draft | not) | select(.tag_name | startswith("firmware-v"))
+                   | select(any(.assets[]; .name == "manifest.json"))
+                   | {tag: .tag_name, version: (.tag_name | ltrimstr("firmware-v")), published_at, prerelease, url: .html_url}]' \
+            > releases.json
+          # Each release's manifest and full images (one per kind of hardware), not the app's update image.
+          for tag in $(jq -r '.[].tag' releases.json); do
+            mkdir -p "website/firmware/$tag"
+            gh release download "$tag" --repo "${{ github.repository }}" --dir "website/firmware/$tag" \
+              --pattern '*-full.bin' --pattern manifest.json
+          done
+          jq '[.[] | . + {dir: "firmware/\(.tag)/"}]' releases.json > website/firmware/releases.json
+          cat website/firmware/releases.json
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website
+      - id: deployment
+        uses: actions/deploy-pages@v4

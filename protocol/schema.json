@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/openrvapp/openrv/protocol/schema.json",
+  "title": "OpenRV gateway protocol, version 1",
+  "description": "One compact JSON message per line over the OpenRV GATT service (RX = phone to gateway, TX = gateway to phone). See docs/architecture.md section 2.",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" },
+    { "$ref": "#/$defs/event" }
+  ],
+  "$defs": {
+    "id": { "type": "integer", "minimum": 0, "maximum": 65535 },
+    "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,23}$" },
+    "mac": { "type": "string", "pattern": "^([0-9A-F]{2}:){5}[0-9A-F]{2}$" },
+    "deviceType": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "A protocol driver's id (firmware/components/devices/protocols/registry.cpp). Apps must not depend on the list: config.get returns the supported models"
+    },
+    "deviceClass": {
+      "enum": ["temperature_sensor", "liquid_level_sensor", "battery_monitor", "solar_controller", "refrigerator", "lock", "surge_protector"],
+      "description": "What the device is; fixes its standard values and controls (docs/device-classes.md)"
+    },
+    "severity": { "enum": ["info", "warning", "critical"] },
+
+    "request": {
+      "type": "object",
+      "required": ["id", "op"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "op": {
+          "enum": [
+            "hello", "pair", "claim", "auth.challenge", "auth.prove", "snapshot", "subscribe", "config.get",
+            "device.add", "device.update", "device.remove", "device.command",
+            "rule.put", "rule.remove", "gateway.update",
+            "discovery.start", "discovery.stop", "ota.begin", "gateway.reboot", "gateway.reset",
+            "phones.list", "phones.update", "phones.remove", "pairing.open",
+            "ota.send.begin", "ota.send.data", "ota.send.end", "ota.send.abort"
+          ],
+          "description": "Who may send what: hello, pair, claim and auth.challenge need nothing; auth.prove, snapshot, subscribe, config.get and device.command need a guest or owner; the rest an owner (else not_authorized)"
+        },
+        "args": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+
+    "response": {
+      "type": "object",
+      "required": ["id", "ok"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "ok": { "type": "boolean" },
+        "result": {},
+        "error": {
+          "type": "object",
+          "required": ["code"],
+          "properties": {
+            "code": {
+              "enum": ["bad_request", "not_authorized", "auth_failed", "not_found", "unreachable", "busy", "refused", "unsupported", "internal"]
+            },
+            "message": { "type": "string" }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "event": {
+      "type": "object",
+      "required": ["ev", "data"],
+      "properties": {
+        "ev": { "enum": ["device", "device.removed", "alarm", "gateway", "discovery", "wifi", "access"] },
+        "data": {}
+      },
+      "additionalProperties": false
+    },
+
+    "hello": {
+      "type": "object",
+      "required": ["proto", "fw", "name", "auth", "caps"],
+      "properties": {
+        "proto": { "const": 1 },
+        "fw": { "type": "string" },
+        "mac": { "type": "string", "description": "The gateway's Bluetooth address, AA:BB:CC:DD:EE:FF; phones keep a dashboard per gateway by it" },
+        "name": { "type": "string" },
+        "auth": {
+          "type": "object",
+          "description": "The PIN, which some actions (such as unlocking) ask for",
+          "properties": { "pin_set": { "type": "boolean" }, "ok": { "type": "boolean" } }
+        },
+        "access": { "$ref": "#/$defs/access" },
+        "caps": {
+          "type": "object",
+          "properties": {
+            "display": { "type": "boolean" },
+            "max_devices": { "type": "integer" },
+            "max_links": { "type": "integer", "description": "Outbound GATT connections at once" }
+          }
+        }
+      }
+    },
+
+    "role": {
+      "enum": ["none", "guest", "owner"],
+      "description": "none: may only pair and claim; guest: watch and operate devices; owner: everything, including which phones get in"
+    },
+
+    "access": {
+      "type": "object",
+      "description": "This phone's standing (in hello, the access event, and pair/claim results). Since firmware 0.4; older firmware has none and lets every phone in",
+      "required": ["role", "paired", "claimed", "pairing", "setup_code"],
+      "properties": {
+        "role": { "$ref": "#/$defs/role" },
+        "paired": { "type": "boolean", "description": "The link is bonded and encrypted" },
+        "claimed": { "type": "boolean", "description": "The gateway has an owner" },
+        "pairing": { "type": "boolean", "description": "New phones may pair now (BOOT held 3 s, or pairing.open)" },
+        "setup_code": { "type": "boolean", "description": "The web flasher wrote a setup code, so claim can take a proof" },
+        "refused": { "enum": ["pairing_closed", "full"], "description": "The gateway won't let this phone in, and disconnects it" }
+      }
+    },
+
+    "otaSend": {
+      "type": "object",
+      "description": "Firmware over Bluetooth (owner). ota.send.begin args {size} answers {chunk}: the most bytes per piece (2048). ota.send.data args {offset, data: base64}, in order from 0; repeating the last piece is harmless. ota.send.end checks the image, switches to it and restarts the gateway; ota.send.abort drops it. Disconnecting mid-transfer drops it too, and a new image that fails to start rolls back",
+      "properties": { "chunk": { "type": "integer" } }
+    },
+
+    "knownPhone": {
+      "type": "object",
+      "description": "A phone the gateway lets in (phones.list). claim args: {proof?: HMAC-SHA256(setup code, auth.challenge nonce) first 16 bytes hex}, or none while pairing is open. phones.update args: {addr, role?, name?}; phones.remove args: {addr}; pairing.open args: {role?, seconds? (10-300, default 120)}",
+      "required": ["addr", "name", "role", "you", "connected"],
+      "properties": {
+        "addr": { "$ref": "#/$defs/mac", "description": "Its Bluetooth identity address" },
+        "name": { "type": "string", "maxLength": 32 },
+        "role": { "enum": ["guest", "owner"] },
+        "you": { "type": "boolean" },
+        "connected": { "type": "boolean" }
+      }
+    },
+
+    "device": {
+      "type": "object",
+      "required": ["id", "type", "class", "model", "name", "mac", "status", "values", "controls"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "type": { "$ref": "#/$defs/deviceType" },
+        "class": { "$ref": "#/$defs/deviceClass" },
+        "model": { "type": "string", "description": "The maker and model, for people" },
+        "traits": { "type": "object", "description": "Fixed facts about the model, such as {\"fluid\": \"propane\"} on a liquid level sensor" },
+        "name": { "type": "string", "maxLength": 32 },
+        "mac": { "$ref": "#/$defs/mac" },
+        "settings": { "type": "object", "description": "Type-specific settings; secrets are never included" },
+        "setting_defs": { "type": "array", "items": { "$ref": "#/$defs/control" }, "description": "How to edit settings, keyed by setting name, so clients need no per-type code" },
+        "status": { "$ref": "#/$defs/deviceStatus" },
+        "values": { "type": "array", "items": { "$ref": "#/$defs/value" } },
+        "controls": { "type": "array", "items": { "$ref": "#/$defs/control" } },
+        "alarms": { "type": "array", "items": { "$ref": "#/$defs/alarm" } }
+      }
+    },
+
+    "deviceStatus": {
+      "type": "object",
+      "required": ["online"],
+      "properties": {
+        "online": { "type": "boolean" },
+        "rssi": { "type": "integer" },
+        "age_s": { "type": ["integer", "null"], "description": "Seconds since the last reading; null = never" },
+        "link": { "enum": ["advert", "connected", "idle", "connecting", "unreachable", "error"] },
+        "busy": { "type": "boolean", "description": "A command is in flight" }
+      }
+    },
+
+    "value": {
+      "type": "object",
+      "required": ["key", "label", "value"],
+      "properties": {
+        "key": { "type": "string" },
+        "label": { "type": "string" },
+        "value": { "type": ["number", "string", "boolean", "null"] },
+        "unit": { "enum": ["C", "%", "V", "A", "W", "Hz", "Ah", "kWh", "mm", "min", "dBm"], "description": "Temperatures are always Celsius" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "decimals": { "type": "integer" },
+        "enum": { "type": "array", "items": { "type": "string" } },
+        "primary": { "type": "boolean", "description": "The value a compact card shows" }
+      }
+    },
+
+    "control": {
+      "type": "object",
+      "required": ["key", "label", "kind"],
+      "properties": {
+        "key": { "type": "string" },
+        "label": { "type": "string" },
+        "kind": { "enum": ["toggle", "number", "choice", "action", "text"] },
+        "value": {},
+        "unit": { "type": "string" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number" },
+        "options": { "type": "array", "items": { "type": "string" } },
+        "labels": { "type": "array", "items": { "type": "string" }, "description": "Display names for options, same order" },
+        "actions": { "type": "array", "items": { "type": "string" } },
+        "confirm": { "type": "array", "items": { "type": "string" }, "description": "Actions to confirm before sending" },
+        "pin": { "type": "array", "items": { "type": "string" }, "description": "Actions that need the gateway PIN entered" },
+        "secret": { "type": "boolean", "description": "text: write-only; value is always empty" },
+        "placeholder": { "type": "string" },
+        "disabled": { "type": "boolean" }
+      }
+    },
+
+    "alarm": {
+      "type": "object",
+      "required": ["rule", "state", "severity", "label"],
+      "properties": {
+        "rule": { "$ref": "#/$defs/slug" },
+        "device": { "$ref": "#/$defs/slug" },
+        "key": { "type": "string", "description": "The value key the rule watches" },
+        "state": { "enum": ["normal", "low", "high"] },
+        "severity": { "$ref": "#/$defs/severity" },
+        "label": { "type": "string" },
+        "value": { "type": ["number", "null"] },
+        "since_s": { "type": "integer" }
+      }
+    },
+
+    "rule": {
+      "type": "object",
+      "required": ["id", "device", "value", "label", "severity"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "device": { "$ref": "#/$defs/slug" },
+        "value": { "type": "string", "description": "A value key of the device" },
+        "below": { "type": ["number", "null"] },
+        "above": { "type": ["number", "null"] },
+        "hysteresis": { "type": "number", "minimum": 0 },
+        "hold_s": { "type": "integer", "minimum": 0, "default": 30 },
+        "label": { "type": "string", "maxLength": 24 },
+        "severity": { "$ref": "#/$defs/severity" },
+        "enabled": { "type": "boolean", "default": true }
+      }
+    },
+
+    "deviceCommand": {
+      "type": "object",
+      "required": ["device", "action"],
+      "properties": {
+        "device": { "$ref": "#/$defs/slug" },
+        "action": { "type": "string", "description": "set, refresh, or an action from a control (lock, unlock)" },
+        "values": { "type": "object", "description": "For set: control key -> new value" },
+        "pin_proof": { "type": "string", "description": "HMAC proof for actions listed in a control's pin" }
+      }
+    },
+
+    "discoveryEvent": {
+      "type": "object",
+      "required": ["mac", "rssi"],
+      "properties": {
+        "mac": { "$ref": "#/$defs/mac" },
+        "rssi": { "type": "integer" },
+        "name": { "type": "string" },
+        "type": { "$ref": "#/$defs/deviceType", "description": "The gateway's guess; absent when unknown" },
+        "class": { "$ref": "#/$defs/deviceClass" },
+        "model": { "type": "string" },
+        "preview": { "type": "array", "items": { "$ref": "#/$defs/value" } },
+        "added": { "type": "boolean" }
+      }
+    },
+
+    "model": {
+      "type": "object",
+      "required": ["type", "model", "class"],
+      "description": "A supported device model, from config.get's models",
+      "properties": {
+        "type": { "$ref": "#/$defs/deviceType" },
+        "model": { "type": "string" },
+        "class": { "$ref": "#/$defs/deviceClass" }
+      }
+    },
+
+    "otaBegin": {
+      "type": "object",
+      "required": ["ssid", "password", "url", "token", "expires_s"],
+      "properties": {
+        "ssid": { "type": "string" },
+        "password": { "type": "string" },
+        "url": { "type": "string", "description": "e.g. http://192.168.4.1/update" },
+        "token": { "type": "string", "description": "One-time bearer token for the upload" },
+        "expires_s": { "type": "integer" }
+      }
+    }
+  }
+}

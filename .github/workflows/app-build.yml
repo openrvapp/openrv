@@ -1,0 +1,52 @@
+# Builds the app with Expo (EAS Build) for the app stores. The builds run on Expo's servers; this
+# only starts them. Push a tag like app-v1.0.0 for store builds of both platforms, sent to Google
+# Play and App Store Connect, or run it by hand for a preview build to install on test phones.
+#
+# Needs the repository secret EXPO_TOKEN (an Expo access token) and the app linked to the Expo
+# project once with `eas init`. Store credentials are kept by EAS, not here.
+name: App build
+
+on:
+  push:
+    tags: ['app-v*']
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Build profile (eas.json)
+        type: choice
+        options: [preview, production]
+        default: preview
+      platform:
+        description: Platform
+        type: choice
+        options: [all, android, ios]
+        default: all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - run: npm test
+
+      - name: Build
+        env:
+          PROFILE: ${{ github.event_name == 'push' && 'production' || inputs.profile }}
+          PLATFORM: ${{ github.event_name == 'push' && 'all' || inputs.platform }}
+        run: |
+          submit=""
+          if [ "$PROFILE" = production ]; then submit="--auto-submit"; fi
+          eas build --profile "$PROFILE" --platform "$PLATFORM" --non-interactive --no-wait $submit

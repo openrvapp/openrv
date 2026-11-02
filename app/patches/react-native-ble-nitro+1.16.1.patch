@@ -1,0 +1,31 @@
+diff --git a/node_modules/react-native-ble-nitro/android/src/main/java/com/margelo/nitro/co/zyke/ble/BleNitroBleManager.kt b/node_modules/react-native-ble-nitro/android/src/main/java/com/margelo/nitro/co/zyke/ble/BleNitroBleManager.kt
+index 226c720..63df2d1 100644
+--- a/node_modules/react-native-ble-nitro/android/src/main/java/com/margelo/nitro/co/zyke/ble/BleNitroBleManager.kt
++++ b/node_modules/react-native-ble-nitro/android/src/main/java/com/margelo/nitro/co/zyke/ble/BleNitroBleManager.kt
+@@ -431,7 +431,18 @@ class BleNitroBleManager : HybridNativeBleNitroSpec() {
+                 }
+             }
+             
++            // Android 13+: the value comes with the callback. Reading characteristic.value instead races
++            // with the next notification, which can overwrite it before it is read.
++            override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray) {
++                deliverNotification(characteristic, value)
++            }
++
++            @Deprecated("Used before Android 13")
+             override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
++                if (android.os.Build.VERSION.SDK_INT < 33) deliverNotification(characteristic, characteristic.value ?: byteArrayOf())
++            }
++
++            private fun deliverNotification(characteristic: BluetoothGattCharacteristic, value: ByteArray) {
+                 // Handle characteristic notifications
+                 val characteristicId = characteristic.uuid.toString()
+                 val serviceId = characteristic.service?.uuid?.toString()
+@@ -440,7 +451,6 @@ class BleNitroBleManager : HybridNativeBleNitroSpec() {
+                     return
+                 }
+                 val subscriptionKey = "$serviceId:$characteristicId"
+-                val value = characteristic.value ?: byteArrayOf()
+ 
+                 // Create direct ByteBuffer as required by ArrayBuffer.wrap()
+                 val directBuffer = java.nio.ByteBuffer.allocateDirect(value.size)

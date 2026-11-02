@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flash a gateway · OpenRV</title>
+    <meta name="description" content="Install OpenRV gateway firmware on an ESP32-S3 board from your browser." />
+    <meta property="og:title" content="Flash an OpenRV gateway" />
+    <meta property="og:image" content="https://openrv.app/assets/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="brand/openrv-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="OpenRV home">
+          <picture>
+            <source srcset="brand/openrv-logo-dark.svg" media="(prefers-color-scheme: dark)" />
+            <img src="brand/openrv-logo.svg" alt="OpenRV" height="34" />
+          </picture>
+        </a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="./#how">How it works</a>
+          <a href="./#devices">Devices</a>
+          <a href="./#start">Get started</a>
+          <a href="flash.html" aria-current="page">Flash a gateway</a>
+          <a href="https://github.com/openrvapp/openrv">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page">
+      <div class="wrap">
+        <h1>Flash a gateway</h1>
+        <p class="section-intro">
+          Install the gateway firmware on a new board, or reinstall it on one that won't start. You need an ESP32-S3
+          board with at least 4 MB of flash, a USB data cable, and Chrome or Edge on a computer. The flasher checks
+          that the board suits the firmware you choose. Once a gateway is running, install updates from the app
+          instead.
+        </p>
+
+        <div id="unsupported" class="notice error" hidden>
+          <p><strong>This browser can't talk to USB serial devices.</strong></p>
+          <p>Open this page in Chrome or Edge on a Windows, Mac, Linux or ChromeOS computer.</p>
+        </div>
+
+        <div class="flasher">
+          <section class="card" aria-labelledby="step-firmware">
+            <h2 id="step-firmware"><span class="num">1</span>Choose the firmware</h2>
+            <div class="tabs" role="tablist" aria-label="Firmware source">
+              <button type="button" role="tab" id="tab-release" aria-selected="true" aria-controls="panel-release">
+                A release
+              </button>
+              <button type="button" role="tab" id="tab-file" aria-selected="false" aria-controls="panel-file">
+                A file
+              </button>
+            </div>
+
+            <div id="panel-release" role="tabpanel" aria-labelledby="tab-release">
+              <div class="field">
+                <label for="release">Release</label>
+                <select id="release" disabled>
+                  <option>Loading releases…</option>
+                </select>
+              </div>
+              <div class="field" id="build-field" hidden>
+                <label for="build">Version for your hardware</label>
+                <select id="build"></select>
+              </div>
+              <p id="release-note" class="muted"></p>
+            </div>
+
+            <div id="panel-file" role="tabpanel" aria-labelledby="tab-file" hidden>
+              <div class="field">
+                <label for="file">Firmware image (.bin)</label>
+                <input id="file" type="file" accept=".bin,application/octet-stream" />
+              </div>
+              <p class="muted">
+                Use a full image, such as <code>openrv-gateway-full.bin</code> from a release or from
+                <code>idf.py merge-bin</code>. It holds the bootloader, partition table and firmware together.
+              </p>
+            </div>
+
+            <dl id="image-facts" class="facts" hidden></dl>
+            <p id="image-status" class="status" hidden></p>
+          </section>
+
+          <section class="card" aria-labelledby="step-board">
+            <h2 id="step-board"><span class="num">2</span>Connect the board</h2>
+            <p class="muted">
+              Plug the board in with a data cable and press Connect. On boards with two USB ports, either works. If it
+              isn't listed or won't connect, hold the BOOT button, press and release RESET, release BOOT, and try
+              again.
+            </p>
+            <div class="buttons">
+              <button id="connect" class="button" type="button">Connect</button>
+              <button id="disconnect" class="button secondary" type="button" hidden>Disconnect</button>
+            </div>
+            <dl id="board-facts" class="facts" hidden></dl>
+            <ul id="checks" class="checks" hidden></ul>
+            <p id="board-status" class="status" hidden></p>
+          </section>
+
+          <section class="card" aria-labelledby="step-install">
+            <h2 id="step-install"><span class="num">3</span>Install</h2>
+            <div class="notice">
+              <p>
+                <strong>This replaces everything on the board,</strong> including a gateway's saved devices, settings,
+                alert rules and the phones it knows. Afterwards it's a new gateway, set up again with its new QR code.
+              </p>
+            </div>
+            <label class="check">
+              <input id="erase" type="checkbox" />
+              <span>Erase the whole flash first. Slower, but clears anything left over from other firmware.</span>
+            </label>
+            <details>
+              <summary>Advanced</summary>
+              <div class="field">
+                <label for="address">Write at address</label>
+                <input id="address" type="text" value="0x0" spellcheck="false" />
+                <span class="muted">A full image goes at 0x0. Change this only for images built for another address.</span>
+              </div>
+            </details>
+            <div class="buttons" style="margin-top: 12px">
+              <button id="install" class="button" type="button" disabled>Install</button>
+            </div>
+            <div id="progress-wrap" hidden>
+              <p id="progress-label" class="muted">Writing…</p>
+              <progress id="progress" max="100" value="0"></progress>
+            </div>
+            <p id="install-status" class="status" hidden></p>
+          </section>
+
+          <section id="setup-card" class="card setup-card" aria-labelledby="step-setup" hidden>
+            <h2 id="step-setup"><span class="num">4</span>Make your phone its owner</h2>
+            <p>
+              Scan this with the phone that will own the gateway. It opens the OpenRV app, which pairs with the
+              gateway and becomes its owner. Owners can then let other phones in from the app.
+            </p>
+            <div class="setup">
+              <div id="setup-qr" class="setup-qr" role="img" aria-label="QR code for setting up the gateway"></div>
+              <dl class="facts">
+                <dt>Gateway</dt>
+                <dd id="setup-mac"></dd>
+                <dt>Setup code</dt>
+                <dd id="setup-code" class="setup-code"></dd>
+              </dl>
+            </div>
+            <p class="muted">
+              Keep this with the gateway: the code works until a phone owns it, and again after a factory reset (hold
+              the BOOT button 10 seconds). Reinstalling makes a new code. Without it, hold BOOT 3 seconds and set the
+              gateway up from the app within 2 minutes.
+            </p>
+            <div class="buttons no-print">
+              <button id="setup-print" class="button" type="button">Print</button>
+              <button id="setup-save" class="button secondary" type="button">Save as image</button>
+            </div>
+          </section>
+
+          <details class="card">
+            <summary>Log</summary>
+            <pre id="log" class="log" aria-live="polite"></pre>
+          </details>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Flashing uses <a href="https://github.com/espressif/esptool-js">esptool-js</a> by Espressif (Apache-2.0),
+          and the QR code <a href="https://github.com/kazuhikoarase/qrcode-generator">qrcode-generator</a> by Kazuhiko
+          Arase (MIT), running entirely in your browser. Nothing is uploaded anywhere.
+        </p>
+        <p>MIT licensed. <a href="https://github.com/openrvapp/openrv">github.com/openrvapp/openrv</a></p>
+      </div>
+    </footer>
+
+    <script type="module" src="assets/flasher.js"></script>
+  </body>
+</html>

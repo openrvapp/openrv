@@ -1,0 +1,3 @@
+# A build with PSRAM switched off, to check the gateway runs on boards without it:
+#   idf.py -B build-nopsram -D SDKCONFIG=build-nopsram/sdkconfig -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;test/configs/no-psram.defaults" build
+CONFIG_SPIRAM=n
