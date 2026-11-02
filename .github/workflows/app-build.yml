@@ -22,6 +22,10 @@ on:
         options: [all, android, ios]
         default: all
 
+# Reads the code only; the builds and store uploads happen on Expo with EXPO_TOKEN.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
