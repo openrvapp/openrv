@@ -31,7 +31,7 @@ A release's `manifest.json` repeats that list with each image's size and SHA-256
 - **Releases:** the flasher reads `firmware/releases.json` next to the page. The Pages deploy writes that file and copies each `firmware-v*` release's `manifest.json` and full images beside it, because GitHub doesn't let other sites' pages download release files directly. The flasher checks each download against the SHA-256 in the release's manifest. Without that file, as when the page is opened from disk, it lists releases from the GitHub API, but can then only point people to the release page to download the file.
 - **A file:** any image the person picks. The flasher reads the image header to tell a full image (bootloader, partition table and app, flashed at 0x0) from an app image alone, and shows the app's name, version and target chip.
 
-`?repo=owner/name` points the release list at another repository, such as a fork. Tests for the image and board checks run with `node --test website/test`.
+`?repo=owner/name` points the release list at another repository, such as a fork. Tests for the image and board checks run with `node --test website/test/*.test.mjs`.
 
 ## Files
 
@@ -40,7 +40,7 @@ A release's `manifest.json` repeats that list with each image's size and SHA-256
 | `index.html` | The project site |
 | `flash.html`, `assets/flasher.js` | The web flasher |
 | `assets/requirements.js` | What a firmware needs, checked against the board (also runs under Node) |
-| `test/` | Tests for the image and board checks (`node --test website/test`) |
+| `test/` | Tests for the image and board checks (`node --test website/test/*.test.mjs`) |
 | `assets/image.js` | Reads ESP-IDF image headers (also runs under Node) |
 | `assets/setup.js` | The setup code written with the firmware and its QR code link (also runs under Node) |
 | `assets/style.css` | Shared look, light and dark |
