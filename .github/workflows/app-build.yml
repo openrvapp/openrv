@@ -1,6 +1,7 @@
 # Builds the app with Expo (EAS Build) for the app stores. The builds run on Expo's servers; this
-# only starts them. Push a tag like app-v1.0.0 for store builds of both platforms, sent to Google
-# Play and App Store Connect, or run it by hand for a preview build to install on test phones.
+# only starts them. Push a tag like app-v1.0.0 for store builds of both platforms (sent to Google
+# Play and App Store Connect once EAS_AUTO_SUBMIT is on), or run it by hand for a preview build to
+# install on test phones.
 #
 # Needs the repository secret EXPO_TOKEN (an Expo access token) and the app linked to the Expo
 # project once with `eas init`. Store credentials are kept by EAS, not here.
@@ -21,6 +22,10 @@ on:
         type: choice
         options: [all, android, ios]
         default: all
+      submit:
+        description: Send a production build to the stores (needs store keys set up on EAS)
+        type: boolean
+        default: false
 
 # Reads the code only; the builds and store uploads happen on Expo with EXPO_TOKEN.
 permissions:
@@ -50,7 +55,10 @@ jobs:
         env:
           PROFILE: ${{ github.event_name == 'push' && 'production' || inputs.profile }}
           PLATFORM: ${{ github.event_name == 'push' && 'all' || inputs.platform }}
+          # Tags submit once the repository variable EAS_AUTO_SUBMIT is "true": store keys have to be
+          # on EAS first, and Google Play takes a new app's first build only by hand.
+          SUBMIT: ${{ github.event_name == 'push' && vars.EAS_AUTO_SUBMIT == 'true' || inputs.submit }}
         run: |
           submit=""
-          if [ "$PROFILE" = production ]; then submit="--auto-submit"; fi
+          if [ "$PROFILE" = production ] && [ "$SUBMIT" = true ]; then submit="--auto-submit"; fi
           eas build --profile "$PROFILE" --platform "$PLATFORM" --non-interactive --no-wait $submit
